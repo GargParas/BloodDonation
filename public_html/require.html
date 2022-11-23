@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<!--
+To change this license header, choose License Headers in Project Properties.
+To change this template file, choose Tools | Templates
+and open the template in the editor.
+-->
+<html lang="en">
+    <head>
+        <title>Require</title>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">     
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"></script>     
+        <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
+           
+        
+        
+        
+    </head>
+    <body>
+        <div class ="p-3 mb-2 bg-danger text-white" style="height: 50rem;">
+        <div class="container ">
+            <h2>Enter Details of Patient</h2>
+            <form id="Form" method="post">
+                <div class="form-group">
+                    <label for="Name">Patient Name:</label>
+                    <input type="text" class="form-control" id="pName"
+                           placeholder="Enter Patient Name" name="Name">
+                </div>
+                <div class="form-group">
+                    <label for="dob">D.O.B</label> 
+                    <input type="text" class="form-control" name="pdob" id="pdob"
+                           placeholder="Enter Patient Age">
+                </div>
+                <div class="form-group">
+                    <label for="grp">Blood Group</label> 
+                    <input type="text" class="form-control" name="grp" id="pgrp"
+                           placeholder="Enter Blood Group">
+                </div>
+                
+                <div class="form-group">
+                    <label for="unit">Units</label> 
+                    <input type="text" class="form-control" name="grp" id="punit"
+                           placeholder="Enter Blood Units required">
+                </div>
+                
+                <div class="form-group">
+                    <label for="no">Mobile No.</label>
+                    <input type="text" class="form-control" id="pno"
+                           placeholder="Enter Mobile Number" name="no">
+                </div>
+                <input type="button" class="btn btn-primary" id="dSave" value="Save"
+                       onclick="savePat();">
+            </form>
+        </div>
+        </div>
+        
+        
+        <script>
+            //validate function
+            function validateAndGetFormData() {
+                
+                var pNameVar = $("#pName").val();
+                if (pNameVar === "") {
+                    alert("Patient Name is Required Value");
+                    $("#pName").focus();
+                    return "";
+                }
+                
+                var pDobVar = $("#pdob").val();
+                if (pDobVar === "") {
+                    alert("DOB is Required Value");
+                    $("#pdob").focus();
+                    return "";
+                }
+                
+                var pGroupVar = $("#pgrp").val();
+                if (pGroupVar === "") {
+                    alert("Blood Group is Required Value");
+                    $("#pgrp").focus();
+                    return "";
+                }
+                
+                var pUnitVar = $("#punit").val();
+                if (pUnitVar === "") {
+                    alert("Units is Required Value");
+                    $("#punit").focus();
+                    return "";
+                }
+                
+                var pNOVar = $("#pno").val();
+                if (pNOVar === "") {
+                    alert("Mobile Number is Required Value");
+                    $("#pno").focus();
+                    return "";
+                }
+                
+                var jsonStrObj = {
+                    pName: pNameVar,
+                    pdob: pDobVar,
+                    pgrp: pGroupVar,
+                    punit: pUnitVar,
+                    pno: pNOVar,
+                };
+                return JSON.stringify(jsonStrObj);
+            }
+            
+            //request function
+            function createPUTRequest(connToken, jsonObj, dbName, relName) {
+                var putRequest = "{\n"
+                        + "\"token\" : \""
+                        + connToken
+                        + "\","
+                        + "\"dbName\": \""
+                        + dbName
+                        + "\",\n" + "\"cmd\" : \"PUT\",\n"
+                        + "\"rel\" : \""
+                        + relName + "\","
+                        + "\"jsonStr\": \n"
+                        + jsonObj
+                        + "\n"
+                        + "}";
+                return putRequest;
+            }
+            
+            //command execution function
+            function executeCommand(reqString, dbBaseUrl, apiEndPointUrl) {
+                var url = dbBaseUrl + apiEndPointUrl;
+                var jsonObj;
+                $.post(url, reqString, function (result) {
+                    jsonObj = JSON.parse(result);
+                }).fail(function (result) {
+                    var dataJsonObj = result.responseText;
+                    jsonObj = JSON.parse(dataJsonObj);
+                });
+                return jsonObj;
+            }
+            
+            //reseting the form values
+            function resetForm() {
+                $("#pName").val("");
+                $("#pdob").val("");
+                $("#pgrp").val("");
+                $("#pno").val("");
+                $("#pName").focus();
+            }
+
+            //on click function
+            function savePat() {
+                var jsonStr = validateAndGetFormData();
+                if (jsonStr === "") {
+                    return;
+                }
+                var putReqStr = createPUTRequest("90938032|-31949266028525916|90953398",
+                        jsonStr, "BloodDonation", "Patient");
+//                alert(putReqStr);
+                jQuery.ajaxSetup({async: false});
+               var resultObj = executeCommand(putReqStr,
+                       "http://api.login2explore.com:5577", "/api/iml");
+                alert("1 Record Added");
+                jQuery.ajaxSetup({async: true});
+                 resetForm();
+            }
+        </script>
+        
+        
+    </body>
+</html>
+
